@@ -1,11 +1,12 @@
 import textwrap
 import numpy as np
+import time
 class AesFromScratch:
     sBox = list()
     GaloisF2 = list()
     GaloisF3 = list()
     RCON = list()
-
+    
     def __init__(self):
         self.initTables()
 
@@ -86,15 +87,19 @@ class AesFromScratch:
 
     # Opertaion Functions
     def xor(self, left, right):
-
         out = int('0x{}'.format(left), 0) ^ int('0x{}'.format(right), 0)
         out = str(hex(out))[2:]
 
         if len(out) < 2:
             out = "0" + out
 
-        return out
+    # Truncate output to 32 characters if it exceeds
+        # out = out[:len(left)]
 
+    # Pad with zeros if output is shorter than 32 characters
+        
+
+        return out
     def rotateWord(self, word):
         return word[1:] + word[:1]
 
@@ -146,7 +151,7 @@ class AesFromScratch:
         roundKey[7] = self.xor(words[7], roundKey[6]).zfill(8)
         roundKey[8] = self.xor(words[8], roundKey[7]).zfill(8)
         roundKey[9] = self.xor(words[9], roundKey[8]).zfill(8)
-
+       
 
 
         return roundKey
@@ -163,6 +168,12 @@ class AesFromScratch:
         for word in key:
             keyString += word
             # print(word)
+
+      
+        if(len(keyString)>=48):
+            keyString=self.xor(keyString[:32], keyString[48:]).zfill(len(stateString))
+        
+
         stateString = self.xor(stateString, keyString).zfill(len(stateString))
         # print(stateString)
         while stateString:
@@ -333,77 +344,25 @@ class AesFromScratch:
         # print(0,textwrap.wrap(key, 8))
         get_all_key.append(key)
         state = self.initSteMat(plaintext)
-        print("=============INITIAL ROUND===============")
-        print("Initial Matrix: ")
+        
         # my_matrix=[x.upper() for x in state]
-        my_matrix = np.array(state).reshape((4, 4)).T
-        print(my_matrix)
-
-        print("Initial Key:")
-        rklist = textwrap.wrap(key, 2)
-        my_matrix = np.array(rklist).reshape((4, 10)).T
-        print(my_matrix)
-
+        key = self.keySchedule(key, 0)
         # Initial Key Addition Layer
         state = self.keyAddition(state, key)
-        print(" After first key addition: ")
-        my_matrix = np.array(state).reshape((4, 10)).T
-        print(my_matrix)
         initialise=1
-
-        for round in range(16):
-
-            print("=============ROUND-",initialise,"===============")
-            print("Round: ", initialise)
-            print("State Matrix")
-
-            print(my_matrix)
-
-
-
+        for round in range(0,16):
             state = self.byteSubstitution(state)
-
-            print(" After Byte Subs:")
-            my_matrix = np.array(state).reshape((4, 10)).T
-            print(my_matrix)
-
-
-
-
             state = self.shiftRows(state)
-
-            print(" After Row Shifts:")
-            my_matrix = np.array(state).reshape((4, 4)).T
-            print(my_matrix)
-
-            if round < 15:
+            if round < 16:
                 state = self.mixColumns(state)
-                print(" After Mix Column:")
-                my_matrix = np.array(state).reshape((4, 4)).T
-                print(my_matrix)
-
+                
             newKey = ""
             for byte in key:
                 newKey += byte
-
-
+                
             key = newKey
-
             key = self.keySchedule(key, round)
-
-            print(" Round ", initialise, "Key:")
-            r_key=''.join(map(str, key))
-            rklist= textwrap.wrap(r_key, 2)
-            my_matrix = np.array(rklist).reshape((4, 10)).T
-            print(my_matrix)
-
             state = self.keyAddition(state, key)
-
-            print(" After Key Addition:")
-            my_matrix = np.array(state).reshape((4, 10)).T
-            print(my_matrix)
-            # print(round+1,key)
-
             pkey=''.join(map(str, key))
             get_all_key.append(pkey)
 
@@ -415,84 +374,23 @@ class AesFromScratch:
 
 
 if __name__ == "__main__":
-    while True:
-        plaintext = "3243F6A8885A308D313198A2E0370734"
-
-        key = "2B7E151628AED2A6ABF7158809CF4F3C6ABF7158809CF4F36ABF7158809CF4F36ABF7158809CF4F3"
-        AESTest = AesFromScratch()
-
-
-        print("Enter 1 - One round Encryption")
-        print("Enter 2 - Encryption in 10 rounds ")
-
-        inp = input(">  ")
-        # inp="2"
-
-        if (inp == "1"):
-
-
-            [oneRound, roundkey] = AESTest.encryptOneRound(plaintext, key)
-
-            prettyCipherText = ""
-
-            for byte in oneRound:
-                prettyCipherText += byte + " "
-                prettyCipherText=prettyCipherText.upper()
-            print("\n\nPlaintext:")
-            print(plaintext)
-
-            print("\nCipher text:")
-            print(prettyCipherText)
-            print("\n")
-            allkeyUp=roundkey.upper()
-            prettyKeys=""
-            splitter =1
-            for byte in allkeyUp:
-                if splitter % 2 == 0:
-                    prettyKeys += byte + " "
-                    splitter += 1
-                else:
-                    prettyKeys += byte + ""
-                    splitter += 1
-            print('Round 1 key:', prettyKeys)
-
-
-        #     for 10 round
-        elif inp == "2":
-
-
-            [tenRound,allkey] = AESTest.encrypt16round(plaintext, key)
-            for i in range(0,10):
-                roundKey = AESTest.keySchedule(key, i)
-                print(roundKey)
-
-            prettyCipherText = ""
-   
-            for byte in tenRound:
-                prettyCipherText += byte + " "
-                prettyCipherText = prettyCipherText.upper()
-            print("\n\nPlaintext:")
-            print(plaintext)
-
-            print("\nCipher text:")
-            print(prettyCipherText)
-            print("\n")
-            print("=============ALL KEYS===============")
-            for i in range(len(allkey)):
-                splitter=1
-
-                prettyKeys = ""
-                allkeyUp =allkey[i].upper()
-                for byte in allkeyUp:
-                    if splitter%2==0:
-                        prettyKeys +=byte + " "
-                        splitter +=1
-                    else:
-                        prettyKeys +=byte + ""
-                        splitter += 1
-                print("Round",i,":", prettyKeys)
-
-
-
-        else:
-            break
+    plaintext = "3243F6A8885A308D31419132E0370734"
+    key = "2B7E151628AED2A6ABF7158809CF4F3C6ABF7158809CF4F36ABF7158809CF4F36ABF7158809CF4F36ABF7158809CF4F3"
+    print("\n\nlength of the key ",len(key))
+    AESTest = AesFromScratch()
+    start_time = time.time()
+    [tenRound,allkey] = AESTest.encrypt16round(plaintext, key)
+    end_time = time.time();
+    for i in range(0,10):
+        roundKey = AESTest.keySchedule(key, i)
+       
+        prettyCipherText = ""
+    for byte in tenRound:
+        prettyCipherText += byte
+        prettyCipherText = prettyCipherText.upper()
+    print("\n\nPlaintext:")
+    print((plaintext))
+    print("\nCipher text:")
+    print((prettyCipherText))
+    print("\n")
+    print("The time is For AES-320",(end_time-start_time) )
