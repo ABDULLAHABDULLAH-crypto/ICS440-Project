@@ -96,7 +96,7 @@ def key_expansion(key, Nk, Nr, Rcon):
     return key_schedule
 
 
-def aes_encrypt(plaintext, key, Nk, Nr, Rcon):
+def encrypt(plaintext, key, Nk, Nr, Rcon):
     state = np.array(list(plaintext)).reshape(4, 4)  # Assuming plaintext is 16 bytes
     round_keys = key_expansion(key, Nk, Nr, Rcon)
 
