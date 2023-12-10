@@ -1,7 +1,7 @@
 import numpy as np
 import AES_base as AES
 
-Nk = 4  # key length: 4 for AES-128, 6 for AES-192, 8 for AES-256
+Nk = 4  # key length in double words: 4 for AES-128, 6 for AES-192, 8 for AES-256
 Nr = 10  # number of rounds: 10 for AES-128, 12 for AES-192, 14 for AES-256
 
 # Round constant words, up to 10 for AES-128
