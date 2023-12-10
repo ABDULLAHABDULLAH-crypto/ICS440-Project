@@ -1,32 +1,48 @@
-
 from Cryptodome.Random import get_random_bytes
 from Cryptodome.Protocol.KDF import PBKDF2
 from Cryptodome.Cipher import AES
 from Cryptodome.Util.Padding import pad,unpad
+import os
+import time 
+
+# Original Rcon table for AES key expansion
 
 ##  generating a key 
-# simple_key=get_random_bytes(32);
-# print(simple_key)
-salt=b'\x80(%C\xb8%\xda\xa2zj\x1a\x9b\xa2\xb1\xdaN\xf1\xe0Z\x93\xd23\xeb!\xd3\x9b\x9e\xa7\xd9]$v'
-password="mypassword"
-## the below code will generate encryption key 
-key=PBKDF2(password,salt,dkLen=32)
+
+key_128=b'mysecretpassword' # 128bit key 
+key_192=b'mysecretpasswordisabdull' # 192bit key 
+key_256=b'mysecretpasswordisabdullahalamou' # 256bit key 
 
 
+
+
+
+print("\n\n\t\tAES-128 bit \n\n")
 message=b"Abdullah Saleh Alamoudi"
-cipher=AES.new(key,AES.MODE_CBC)
+cipher=AES.new(key_128,AES.MODE_CBC)
+start_time=time.time()
 ciphered_data =cipher.encrypt(pad(message,AES.block_size))
+end_time=time.time()
+print("\n\n The time for AES-128 :",end_time-start_time)
 
 
-## the code below will save the encryption text as bytes into a file 
-# with open('encrypted.bin','wb') as f:
-#     f.write(cipher.iv)
-#     f.write(ciphered_data)
 
-## the code below will decrypt the file ,and print the message
-# with open('encrypted.bin','rb') as f:
-#     iv=f.read(16)
-#     decrypt_data=f.read()
 
-# cipher=AES.new(key,AES.MODE_CBC,iv=iv)
-# print(unpad(cipher.decrypt(decrypt_data),AES.block_size))
+# print("\n\n\t\tAES-192 bit \n\n")
+# message=b"Abdullah Saleh Alamoudi"
+# cipher=AES.new(key_192,AES.MODE_CBC)
+# start_time=time.time()
+# ciphered_data =cipher.encrypt(pad(message,AES.block_size))
+# end_time=time.time()
+# print("\n\nThe time for AES-192 :",end_time-start_time)
+
+
+
+
+# print("\n\n\t\tAES-256 bit \n\n")
+# message=b"Abdullah Saleh Alamoudi"
+# cipher=AES.new(key_256,AES.MODE_CBC)
+# start_time=time.time()
+# ciphered_data =cipher.encrypt(pad(message,AES.block_size))
+# end_time=time.time()
+# print("\n\n The time for AES-256 :",end_time-start_time)
