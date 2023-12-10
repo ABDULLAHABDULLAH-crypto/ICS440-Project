@@ -88,7 +88,7 @@ class AesFromScratch:
 
         return state
 
-    # Opertaion Functions
+    # Operation Functions
     def xor(self, left, right):
 
         out = int('0x{}'.format(left), 0) ^ int('0x{}'.format(right), 0)
