@@ -1,4 +1,5 @@
 from Crypto.Cipher import AES
+import AES_base, AES_320, AES_384, AES_512
 # from Crypto.Util.Padding import pad, unpad
 
 key = b"\x24\x75\xA2\xB3\x34\x75\x56\x88\x31\xE2\x12\x00\x13\xAA\x54\x87"
