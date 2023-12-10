@@ -38,9 +38,6 @@ Each script includes a basic test case to demonstrate encryption. For comprehens
 ## Contributing
 Contributions are welcome, especially for improving the implementations or adding more test cases. Please open a pull request with your contributions.
 
-## License
-This project is open-sourced under the MIT License. See the LICENSE file for more details.
-
 ## Disclaimer
 These implementations are for educational and research purposes only. They have not been thoroughly vetted for security and should not be used in production systems.
 
