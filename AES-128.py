@@ -40,7 +40,7 @@ def xtime(a):
     return (((a << 1) ^ 0x1B) & 0xFF) if (a & 0x80) else (a << 1)
 
 
-# takes a column of the state matrix and mixes its bytes
+# a function that takes a column of the state matrix and mixes its bytes
 def mix_single_column(a):
     # Multiply one column matrix
     t = a[0] ^ a[1] ^ a[2] ^ a[3]
@@ -74,9 +74,10 @@ def add_round_key(state, key_schedule, round_num):
 
 
 def key_expansion(key):
-    # Constants (in words)
-    Nb = 4  # block size (in words): No of columns in the state (for AES = 4 words)
-    Nk = 4  # key length (in words): 4 for AES-128, 6 for AES-192, 8 for AES-256
+
+    # Constants
+    Nb = 4  # block size: No of columns in the state (always = 4 for AES)
+    Nk = 4  # key length (in double words): 4 for AES-128, 6 for AES-192, 8 for AES-256
     Nr = 10  # number of rounds: 10 for AES-128, 12 for AES-192, 14 for AES-256
 
     # Round constant words
@@ -133,9 +134,7 @@ def aes_encrypt(plaintext, key):
 
 
 # Example usage
-plaintext = b"\x00\x04\x12\x14\x12\x04\x12\x00\x0C\x00\x13\x11\x08\x23\x19\x19"
+plaintext = b"\x00\x04\x12\x14\x12\x04\x12\x00\x0C\x00\x13\x11\x08\x23\x19\x18"
 key = b"\x24\x75\xA2\xB3\x34\x75\x56\x88\x31\xE2\x12\x00\x13\xAA\x54\x87"
-# a257a9dbf85764f4477c53f05c6fc9f3
-# bc028bd3e0e3b195550d6dfbe6f18241
 encrypted = aes_encrypt(plaintext, key)
 print("Encrypted:", encrypted)
