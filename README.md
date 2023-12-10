@@ -1,4 +1,4 @@
-AES Encryption Implementations
+## AES Encryption Implementations
 This repository contains a series of Python scripts implementing the Advanced Encryption Standard (AES) encryption algorithm with various key lengths. The scripts cover standard AES key lengths (128 bits) as well as extended key lengths (320, 384, and 512 bits).
 
 Files
