@@ -1,49 +1,48 @@
-## AES Encryption Implementations
-This repository contains a series of Python scripts implementing the Advanced Encryption Standard (AES) encryption algorithm with various key lengths. The scripts cover standard AES key lengths (128 bits) as well as extended key lengths (320, 384, and 512 bits).
 
-Files
-AES_base.py: A base implementation of AES.
-AES-128.py: Implementation of AES with a 128-bit key.
-AES-320.py: Extended AES implementation with a 320-bit key.
-AES-384.py: Extended AES implementation with a 384-bit key.
-AES-512.py: Extended AES implementation with a 512-bit key.
-Requirements
-Python 3.x
-Numpy library (for some scripts)
-Usage
-To run any of these scripts, ensure you have Python installed on your system. Some scripts require the Numpy library, which can be installed using pip:
+# README.md for AES Implementation with Extended Key Lengths
 
-bash
-Copy code
+## Introduction
+This repository contains Python implementations of the Advanced Encryption Standard (AES) algorithm with various key lengths, including extended versions beyond the standard specifications. These implementations are purely for educational and research purposes and are not recommended for production use.
+
+## Files in This Repository
+- `AES_base.py`: The base implementation of AES, providing foundational functions used by all other scripts.
+- `AES-128.py`: AES implementation with a 128-bit key.
+- `AES-320.py`: Adapted AES implementation to support a 320-bit key.
+- `AES-384.py`: Adapted AES implementation to support a 384-bit key.
+- `AES-512.py`: Adapted AES implementation to support a 512-bit key.
+
+## Installation
+To use these scripts, ensure you have Python installed on your system. No additional libraries are required for the base implementation. However, for running advanced versions (AES-320, AES-384, and AES-512), the `numpy` library is needed.
+
+Install numpy with pip:
+```bash
 pip install numpy
-Run a script with:
+```
 
-bash
-Copy code
-python <script_name>.py
-Replace <script_name> with the name of the script you want to run (e.g., AES-128).
+## Usage
+Each script can be run independently. Here's an example of how to run the AES-128 implementation:
+```bash
+python AES-128.py
+```
 
-Script Details
-AES_base.py
-This script provides a base AES implementation. It includes fundamental functions used across other AES scripts.
+Replace `AES-128.py` with the desired script name to run different versions of AES.
 
-AES-128.py
-Implements AES encryption with a standard 128-bit key. This script demonstrates the traditional AES encryption process.
+## Implementation Details
+- `AES_base.py` contains common functions like `sub_bytes`, `shift_rows`, `mix_columns`, and `add_round_key` used across all AES versions.
+- `AES-128.py` is the standard AES implementation with a 128-bit key.
+- `AES-320.py`, `AES-384.py`, and `AES-512.py` include modifications to the key expansion process and the number of encryption rounds to accommodate the respective key sizes.
 
-AES-320.py
-A custom implementation of AES with a 320-bit key. This non-standard extension includes modifications to the key expansion process and the number of encryption rounds.
+## Testing
+Each script includes a basic test case to demonstrate encryption. For comprehensive testing, use varied inputs and compare the outputs against known AES standards.
 
-AES-384.py
-Similar to AES-320.py, but for a 384-bit key. The script includes adjustments to handle the larger key size and additional encryption rounds.
+## Contributing
+Contributions are welcome, especially for improving the implementations or adding more test cases. Please open a pull request with your contributions.
 
-AES-512.py
-An experimental implementation of AES with a 512-bit key. It features further adaptations to the AES algorithm to accommodate the extended key size.
+## License
+This project is open-sourced under the MIT License. See the LICENSE file for more details.
 
-Notes
-The extended key implementations (320, 384, and 512 bits) are experimental and not part of the AES standard. They are provided for educational purposes and should not be used for security-critical applications.
-Ensure you understand the basics of AES before experimenting with the extended key implementations.
-License
-Specify the license under which these scripts are released.
+## Disclaimer
+These implementations are for educational and research purposes only. They have not been thoroughly vetted for security and should not be used in production systems.
 
-Contact
-Provide your contact information or links to your social media/GitHub profile.
+## Contact
+For any queries or suggestions, please open an issue on the repository.
