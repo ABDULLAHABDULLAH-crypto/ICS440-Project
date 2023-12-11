@@ -1,5 +1,5 @@
 
-# README.md for AES Implementation with Extended Key Lengths
+# AES Implementation with Extended Key Lengths
 
 ## Introduction
 This repository contains Python implementations of the Advanced Encryption Standard (AES) algorithm with various key lengths, including extended versions beyond the standard specifications. These implementations are purely for educational and research purposes and are not recommended for production use.
