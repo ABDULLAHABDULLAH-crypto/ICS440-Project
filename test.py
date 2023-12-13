@@ -1,5 +1,5 @@
 import time
-from Crypto.Cipher import AES
+from Cryptodome.Cipher import AES
 import AES_base, AES_128, AES_320, AES_384, AES_512
 
 def measure_execution_time(function, *args, **kwargs):
