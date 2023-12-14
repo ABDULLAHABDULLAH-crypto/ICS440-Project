@@ -42,11 +42,14 @@ class CustomAES:
             # Rotate a word by 8 bits to the left
             return ((word << 8) & 0xFFFFFFFF) | (word >> 24)
 
-        # Preparing the key schedule
+        # Create an empty key schedule
         key_schedule = [0] * (BLOCK_SIZE * (self.Nr + 1))
+
+        # Copy the initial key into the beginning of the key schedule
         for i in range(self.Nk):
             key_schedule[i] = (key[4 * i] << 24) | (key[4 * i + 1] << 16) | (key[4 * i + 2] << 8) | key[4 * i + 3]
 
+        # Expand the key schedule
         for i in range(self.Nk, BLOCK_SIZE * (self.Nr + 1)):
             temp = key_schedule[i - 1]
             if i % self.Nk == 0:
@@ -97,10 +100,12 @@ class CustomAES:
 
 
 def sub_bytes(state):
+    # Perform byte substitution using the S-box for each byte in the state
     for i in range(BLOCK_SIZE):
         for j in range(BLOCK_SIZE):
             state[i][j] = S_BOX[state[i][j]]
     return state
+
 
 def shift_rows(state):
     # Copy each row of the state to a temporary list, shift it, and write it back
@@ -109,8 +114,9 @@ def shift_rows(state):
         state[i] = np.array(row[i:] + row[:i])  # Shift and convert back to numpy array
     return state
 
-# a function used for multiplying by {02} in GF(2^8).
+
 def xtime(a):
+    # a function used for multiplying by {02} in GF(2^8).
     return (((a << 1) ^ 0x1B) & 0xFF) if (a & 0x80) else (a << 1)
 
 # takes a column of the state matrix and mixes its bytes
