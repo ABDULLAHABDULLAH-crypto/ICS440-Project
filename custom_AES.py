@@ -1,7 +1,9 @@
 import numpy as np
 
-columnsNum = 4  # block size: No of columns in the state (for AES = 4 words)
-S_box = [
+from AES_version import AESVersion
+
+BLOCK_SIZE = 4
+S_BOX = [
     0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
     0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0,
     0xb7, 0xfd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, 0x34, 0xa5, 0xe5, 0xf1, 0x71, 0xd8, 0x31, 0x15,
@@ -21,25 +23,91 @@ S_box = [
 ]
 
 
-def sub_bytes(state):
-    for i in range(columnsNum):
-        for j in range(columnsNum):
-            state[i][j] = S_box[state[i][j]]
-    return state
+class CustomAES:
+    def __init__(self, version: AESVersion):
+        self.version = version
+        self.Nk = version.value['Nk']
+        self.Nr = version.value['Nr']
+        self.Rcon = version.value['Rcon']
 
+    def key_expansion(self, key):
+        def sub_word(word):
+            return (S_BOX[word >> 24] << 24) | (S_BOX[(word >> 16) & 0xFF] << 16) | (S_BOX[(word >> 8) & 0xFF] << 8) | \
+                S_BOX[word & 0xFF]
+
+        def rot_word(word):
+            return ((word << 8) & 0xFFFFFFFF) | (word >> 24)
+
+        # Preparing the key schedule
+        key_schedule = [0] * (BLOCK_SIZE * (self.Nr + 1))
+        for i in range(self.Nk):
+            key_schedule[i] = (key[4 * i] << 24) | (key[4 * i + 1] << 16) | (key[4 * i + 2] << 8) | key[4 * i + 3]
+
+        for i in range(self.Nk, BLOCK_SIZE * (self.Nr + 1)):
+            temp = key_schedule[i - 1]
+            if i % self.Nk == 0:
+                temp = sub_word(rot_word(temp)) ^ self.Rcon[i // self.Nk - 1]
+            key_schedule[i] = key_schedule[i - self.Nk] ^ temp
+
+        return key_schedule
+
+    def encrypt(self, plaintext, key):
+        if len(plaintext) % 16 != 0:
+            raise ValueError("Plaintext must be a multiple of 16 bytes")
+
+        # Initialize an empty string for the full ciphertext
+        full_cipher_text = ""
+
+        # Process each 16-byte (128-bit) block of the plaintext
+        for block_start in range(0, len(plaintext), 16):
+            # Extract the current block from plaintext
+            block = plaintext[block_start:block_start + 16]
+            # Convert the block to a state array
+            state = np.array(list(block)).reshape((4, 4), order='F')
+            # Get the round keys from the key expansion
+            key_schedule = self.key_expansion(key)
+
+            # Initial round
+            state = add_round_key(state, key_schedule, 0)
+
+            # Main rounds
+            for i in range(1, self.Nr):
+                state = sub_bytes(state)
+                state = shift_rows(state)
+                state = mix_columns(state)
+                state = add_round_key(state, key_schedule, i)
+
+            # Final round (no MixColumns)
+            state = sub_bytes(state)
+            state = shift_rows(state)
+            state = add_round_key(state, key_schedule, self.Nr)
+
+            # Convert the state to a hex string and append to the full ciphertext
+            cipher_text_block = ""
+            for i in range(4):  # Assuming the matrix is 4x4
+                for row in state:
+                    cipher_text_block += '{:02X}'.format(row[i])
+            full_cipher_text += cipher_text_block
+
+        return full_cipher_text
+
+
+def sub_bytes(state):
+    for i in range(BLOCK_SIZE):
+        for j in range(BLOCK_SIZE):
+            state[i][j] = S_BOX[state[i][j]]
+    return state
 
 def shift_rows(state):
     # Copy each row of the state to a temporary list, shift it, and write it back
-    for i in range(1, columnsNum):
+    for i in range(1, BLOCK_SIZE):
         row = state[i].tolist()  # Convert the numpy array row to a list
         state[i] = np.array(row[i:] + row[:i])  # Shift and convert back to numpy array
     return state
 
-
 # a function used for multiplying by {02} in GF(2^8).
 def xtime(a):
     return (((a << 1) ^ 0x1B) & 0xFF) if (a & 0x80) else (a << 1)
-
 
 # takes a column of the state matrix and mixes its bytes
 def mix_single_column(column):
@@ -52,73 +120,21 @@ def mix_single_column(column):
     column[3] ^= t ^ xtime(column[3] ^ u)
     return column
 
-
 # applies mix_single_column to each column of the state.
 def mix_columns(state):
-    for i in range(columnsNum):
+    for i in range(BLOCK_SIZE):
         column = [state[0][i], state[1][i], state[2][i], state[3][i]]
         column = mix_single_column(column)
-        for j in range(columnsNum):
+        for j in range(BLOCK_SIZE):
             state[j][i] = column[j]
     return state
 
-
 def add_round_key(state, key_schedule, round_num):
-    for i in range(columnsNum):
+    for i in range(BLOCK_SIZE):
         # Extracting a word from the key schedule
         word = key_schedule[round_num * 4 + i]
-        for j in range(columnsNum):
+        for j in range(BLOCK_SIZE):
             # Extracting the appropriate byte from the word
             key_byte = (word >> (8 * (3 - j))) & 0xFF
             state[j][i] ^= key_byte
     return state
-
-
-def key_expansion(key, Nk, Nr, Rcon):
-    def sub_word(word):
-        return (S_box[word >> 24] << 24) | (S_box[(word >> 16) & 0xFF] << 16) | (S_box[(word >> 8) & 0xFF] << 8) | \
-            S_box[word & 0xFF]
-
-    def rot_word(word):
-        return ((word << 8) & 0xFFFFFFFF) | (word >> 24)
-
-    # Preparing the key schedule
-    key_schedule = [0] * (columnsNum * (Nr + 1))
-    for i in range(Nk):
-        key_schedule[i] = (key[4 * i] << 24) | (key[4 * i + 1] << 16) | (key[4 * i + 2] << 8) | key[4 * i + 3]
-
-    for i in range(Nk, columnsNum * (Nr + 1)):
-        temp = key_schedule[i - 1]
-        if i % Nk == 0:
-            temp = sub_word(rot_word(temp)) ^ Rcon[i // Nk - 1]
-        key_schedule[i] = key_schedule[i - Nk] ^ temp
-
-    return key_schedule
-
-
-def encrypt(plaintext, key, Nk, Nr, Rcon):
-    state = np.array(list(plaintext)).reshape((4, 4), order='F') # Assuming plaintext is 16 bytes
-    round_keys = key_expansion(key, Nk, Nr, Rcon)
-
-    # Initial round
-    state = add_round_key(state, round_keys, 0)
-
-    # Main rounds (9 rounds for AES-128)
-    for i in range(1, Nr):
-        state = sub_bytes(state)
-        state = shift_rows(state)
-        state = mix_columns(state)
-        state = add_round_key(state, round_keys, i)
-
-    # Final round (no MixColumns)
-    state = sub_bytes(state)
-    state = shift_rows(state)
-    state = add_round_key(state, round_keys, Nr)
-
-    # convert the state to a hex string
-    cipherText = ""
-    for i in range(4):  # Assuming the matrix is 4x4
-        for row in state:
-            cipherText += '{:02X}'.format(row[i])
-
-    return cipherText
