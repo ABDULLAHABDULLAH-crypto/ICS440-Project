@@ -117,11 +117,16 @@ def shift_rows(state):
 
 def xtime(a):
     # a function used for multiplying by {02} in GF(2^8).
+    # multiplication by {02} can be viewed as a left shift of the byte (a << 1)
+    # 0x1B is the polynomial x^8 + x^4 + x^3 + x + 1
+    # The XOR operation with 0x1B performs modular reduction.
+    # a << 1 is equivalent to multiplying by 2 in binary arithmetic
+    # a & 0x80 checks if the leftmost bit of a is set.
     return (((a << 1) ^ 0x1B) & 0xFF) if (a & 0x80) else (a << 1)
 
-# takes a column of the state matrix and mixes its bytes
+
 def mix_single_column(column):
-    # Multiply one column matrix
+    # takes a column of the state matrix and mixes its bytes
     t = column[0] ^ column[1] ^ column[2] ^ column[3]
     u = column[0]
     column[0] ^= t ^ xtime(column[0] ^ column[1])
@@ -130,8 +135,9 @@ def mix_single_column(column):
     column[3] ^= t ^ xtime(column[3] ^ u)
     return column
 
-# applies mix_single_column to each column of the state.
+
 def mix_columns(state):
+    # applies mix_single_column to each column of the state.
     for i in range(BLOCK_SIZE):
         column = [state[0][i], state[1][i], state[2][i], state[3][i]]
         column = mix_single_column(column)
