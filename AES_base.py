@@ -1,6 +1,6 @@
 import numpy as np
 
-Nb = 4  # block size: No of columns in the state (for AES = 4 words)
+columnsNum = 4  # block size: No of columns in the state (for AES = 4 words)
 S_box = [
     0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
     0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0,
@@ -22,15 +22,15 @@ S_box = [
 
 
 def sub_bytes(state):
-    for i in range(Nb):
-        for j in range(Nb):
+    for i in range(columnsNum):
+        for j in range(columnsNum):
             state[i][j] = S_box[state[i][j]]
     return state
 
 
 def shift_rows(state):
     # Copy each row of the state to a temporary list, shift it, and write it back
-    for i in range(1, Nb):
+    for i in range(1, columnsNum):
         row = state[i].tolist()  # Convert the numpy array row to a list
         state[i] = np.array(row[i:] + row[:i])  # Shift and convert back to numpy array
     return state
@@ -42,32 +42,32 @@ def xtime(a):
 
 
 # takes a column of the state matrix and mixes its bytes
-def mix_single_column(a):
+def mix_single_column(column):
     # Multiply one column matrix
-    t = a[0] ^ a[1] ^ a[2] ^ a[3]
-    u = a[0]
-    a[0] ^= t ^ xtime(a[0] ^ a[1])
-    a[1] ^= t ^ xtime(a[1] ^ a[2])
-    a[2] ^= t ^ xtime(a[2] ^ a[3])
-    a[3] ^= t ^ xtime(a[3] ^ u)
-    return a
+    t = column[0] ^ column[1] ^ column[2] ^ column[3]
+    u = column[0]
+    column[0] ^= t ^ xtime(column[0] ^ column[1])
+    column[1] ^= t ^ xtime(column[1] ^ column[2])
+    column[2] ^= t ^ xtime(column[2] ^ column[3])
+    column[3] ^= t ^ xtime(column[3] ^ u)
+    return column
 
 
 # applies mix_single_column to each column of the state.
 def mix_columns(state):
-    for i in range(Nb):
+    for i in range(columnsNum):
         column = [state[0][i], state[1][i], state[2][i], state[3][i]]
         column = mix_single_column(column)
-        for j in range(Nb):
+        for j in range(columnsNum):
             state[j][i] = column[j]
     return state
 
 
 def add_round_key(state, key_schedule, round_num):
-    for i in range(Nb):
+    for i in range(columnsNum):
         # Extracting a word from the key schedule
         word = key_schedule[round_num * 4 + i]
-        for j in range(Nb):
+        for j in range(columnsNum):
             # Extracting the appropriate byte from the word
             key_byte = (word >> (8 * (3 - j))) & 0xFF
             state[j][i] ^= key_byte
@@ -83,11 +83,11 @@ def key_expansion(key, Nk, Nr, Rcon):
         return ((word << 8) & 0xFFFFFFFF) | (word >> 24)
 
     # Preparing the key schedule
-    key_schedule = [0] * (Nb * (Nr + 1))
+    key_schedule = [0] * (columnsNum * (Nr + 1))
     for i in range(Nk):
         key_schedule[i] = (key[4 * i] << 24) | (key[4 * i + 1] << 16) | (key[4 * i + 2] << 8) | key[4 * i + 3]
 
-    for i in range(Nk, Nb * (Nr + 1)):
+    for i in range(Nk, columnsNum * (Nr + 1)):
         temp = key_schedule[i - 1]
         if i % Nk == 0:
             temp = sub_word(rot_word(temp)) ^ Rcon[i // Nk - 1]
@@ -97,7 +97,7 @@ def key_expansion(key, Nk, Nr, Rcon):
 
 
 def encrypt(plaintext, key, Nk, Nr, Rcon):
-    state = np.array(list(plaintext)).reshape(4, 4)  # Assuming plaintext is 16 bytes
+    state = np.array(list(plaintext)).reshape((4, 4), order='F') # Assuming plaintext is 16 bytes
     round_keys = key_expansion(key, Nk, Nr, Rcon)
 
     # Initial round
@@ -117,8 +117,8 @@ def encrypt(plaintext, key, Nk, Nr, Rcon):
 
     # convert the state to a hex string
     cipherText = ""
-    for row in state:
-        for byte in row:
-            cipherText += '{:02x}'.format(byte)
+    for i in range(4):  # Assuming the matrix is 4x4
+        for row in state:
+            cipherText += '{:02X}'.format(row[i])
 
     return cipherText
