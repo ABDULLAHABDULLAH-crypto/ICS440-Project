@@ -8,7 +8,7 @@ def generate_random_bytes(num_bytes: int) -> bytes:
     return secrets.token_bytes(num_bytes)
 
 
-plaintext = generate_random_bytes(16 * 10)
+plaintext = generate_random_bytes(16 * 100)
 
 # Define keys for each AES version
 key_128 = generate_random_bytes(16)
