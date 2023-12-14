@@ -2,7 +2,7 @@ import numpy as np
 
 from AES_version import AESVersion
 
-BLOCK_SIZE = 4
+BLOCK_SIZE = 4 # AES block size in words (AES uses 4x4 word blocks)
 S_BOX = [
     0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
     0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0,
@@ -25,17 +25,21 @@ S_BOX = [
 
 class CustomAES:
     def __init__(self, version: AESVersion):
+        # Initialize AES with a specific version
         self.version = version
         self.Nk = version.value['Nk']
         self.Nr = version.value['Nr']
         self.Rcon = version.value['Rcon']
 
     def key_expansion(self, key):
+        # Expand the cipher key into the key schedule for AES rounds
         def sub_word(word):
+            # Substitute each byte in a word using the S-box
             return (S_BOX[word >> 24] << 24) | (S_BOX[(word >> 16) & 0xFF] << 16) | (S_BOX[(word >> 8) & 0xFF] << 8) | \
                 S_BOX[word & 0xFF]
 
         def rot_word(word):
+            # Rotate a word by 8 bits to the left
             return ((word << 8) & 0xFFFFFFFF) | (word >> 24)
 
         # Preparing the key schedule

@@ -7,7 +7,7 @@ from custom_AES import CustomAES
 def generate_random_bytes(num_bytes: int) -> bytes:
     return secrets.token_bytes(num_bytes)
 
-
+# Define a plaintext to use for encryption
 plaintext = generate_random_bytes(16 * 100)
 
 # Define keys for each AES version
@@ -28,23 +28,26 @@ aes_versions = {
     AESVersion.AES_512: (CustomAES(AESVersion.AES_512), key_512),
 }
 
-# Dictionary to store execution times
-execution_times = {}
+# Number of iterations for each encryption
+num_iterations = 10
+
+# Dictionary to store cumulative execution times
+cumulative_execution_times = {version: 0 for version in aes_versions}
 
 # Measure execution time for each AES version
 for version, (aes, key) in aes_versions.items():
-    start_time = time.time()
-    encrypted = aes.encrypt(plaintext, key)
-    end_time = time.time()
-    execution_times[version] = end_time - start_time
-    print(f"{version.name} encrypted text: {encrypted}")
+    for _ in range(num_iterations):
+        start_time = time.time()
+        encrypted = aes.encrypt(plaintext, key)
+        end_time = time.time()
+        cumulative_execution_times[version] += end_time - start_time
 
-# Compare and print execution times
-for version, exec_time in execution_times.items():
-    print(f"Execution time for {version.name}: {exec_time:.9f} seconds")
+# Calculate and print average execution times
+for version, total_time in cumulative_execution_times.items():
+    average_time = total_time / num_iterations
+    print(f"Average execution time for {version.name}: {average_time:.6f} seconds")
 
-# Determine the fastest AES version
-fastest_version = min(execution_times, key=execution_times.get)
-print(
-    f"The fastest AES version is {fastest_version.name}"
-    f" with an execution time of {execution_times[fastest_version]:.6f} seconds.")
+# Determine the fastest AES version on average
+fastest_version = min(cumulative_execution_times, key=cumulative_execution_times.get)
+average_fastest_time = cumulative_execution_times[fastest_version] / num_iterations
+print(f"The fastest AES version on average is {fastest_version.name} with an execution time of {average_fastest_time:.6f} seconds.")
