@@ -1,45 +1,35 @@
 
-# AES Implementation with Extended Key Lengths
+## README for AES Encryption Project
 
-## Introduction
-This repository contains Python implementations of the Advanced Encryption Standard (AES) algorithm with various key lengths, including extended versions beyond the standard specifications. These implementations are purely for educational and research purposes and are not recommended for production use.
+### Introduction
+This project consists of Python scripts that implement and test various versions of the Advanced Encryption Standard (AES) algorithm. It is designed to demonstrate custom AES encryption and decryption processes with different key sizes.
 
-## Files in This Repository
-- `AES_base.py`: The base implementation of AES, providing foundational functions used by all other scripts.
-- `AES-128.py`: AES implementation with a 128-bit key.
-- `AES-320.py`: Adapted AES implementation to support a 320-bit key.
-- `AES-384.py`: Adapted AES implementation to support a 384-bit key.
-- `AES-512.py`: Adapted AES implementation to support a 512-bit key.
+### Requirements
+- Python 3.x
+- Numpy (for `custom_AES.py`)
 
-## Installation
-To use these scripts, ensure you have Python installed on your system. No additional libraries are required for the base implementation. However, for running advanced versions (AES-320, AES-384, and AES-512), the `numpy` library is needed.
+### File Descriptions
+1. **AES_version.py**
+   - Enumerates different versions of the AES algorithm.
+   - Defines key length (`Nk`), number of rounds (`Nr`), and round constants (`Rcon`) for each version.
 
-Install numpy with pip:
-```bash
-pip install numpy
-```
+2. **custom_AES.py**
+   - Implements the AES encryption and decryption processes.
+   - Utilizes the `AESVersion` enumeration from `AES_version.py`.
+   - Includes key expansion and all steps of the AES algorithm.
+   - Depends on Numpy for certain operations.
 
-## Usage
-Each script can be run independently. Here's an example of how to run the AES-128 implementation:
-```bash
-python AES-128.py
-```
+3. **test.py**
+   - A test script for the AES functionality.
+   - Generates random bytes for plaintext and keys.
+   - Tests encryption and decryption with different key sizes.
+   - Demonstrates the usage of functions/classes from `custom_AES.py`.
 
-Replace `AES-128.py` with the desired script name to run different versions of AES.
+### Usage
+1. Ensure Python 3.x and Numpy are installed.
+2. Run `test.py` to see the encryption and decryption in action with different AES versions and key sizes.
+3. To use custom AES in other projects, import the necessary functions/classes from `custom_AES.py`.
 
-## Implementation Details
-- `AES_base.py` contains common functions like `sub_bytes`, `shift_rows`, `mix_columns`, and `add_round_key` used across all AES versions.
-- `AES-128.py` is the standard AES implementation with a 128-bit key.
-- `AES-320.py`, `AES-384.py`, and `AES-512.py` include modifications to the key expansion process and the number of encryption rounds to accommodate the respective key sizes.
-
-## Testing
-Each script includes a basic test case to demonstrate encryption. For comprehensive testing, use varied inputs and compare the outputs against known AES standards.
-
-## Contributing
-Contributions are welcome, especially for improving the implementations or adding more test cases. Please open a pull request with your contributions.
-
-## Disclaimer
-These implementations are for educational and research purposes only. They have not been thoroughly vetted for security and should not be used in production systems.
-
-## Contact
-For any queries or suggestions, please open an issue on the repository.
+### Additional Notes
+- This implementation is for educational purposes and may not be suitable for production environments.
+- Ensure understanding of the AES algorithm and its parameters before modification.
