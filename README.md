@@ -1,5 +1,5 @@
 
-## README for AES Encryption Project
+## Customized AES Encryption Project
 
 ### Introduction
 This project consists of Python scripts that implement and test various versions of the Advanced Encryption Standard (AES) algorithm. It is designed to demonstrate custom AES encryption and decryption processes with different key sizes.
